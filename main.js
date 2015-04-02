@@ -109,7 +109,12 @@ var playState = {
     }
 
     if(this.fireButton.isDown && this.game.time.now > this.nextFireball){
-      this.nextFireball = this.game.time.now + 200;
+      this.nextFireball = this.game.time.now + 50;
+      this.fireFireball();
+    }
+
+    if(this.fireButton.onTap && this.game.time.now > this.nextFireball){
+      this.nextFireball = this.game.time.now + 50;
       this.fireFireball();
     }
 
