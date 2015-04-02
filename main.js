@@ -27,11 +27,11 @@ var playState = {
     this.ground.body.immovable = true;
 
     // Add player
-    this.player = this.game.add.sprite(100, 100, "player");
-    this.player.animations.add('run', [6,7,8], 10, true);
+    this.player = this.game.add.sprite(100, this.game.height - this.ground.height - 32, "player");
     this.player.anchor.setTo(1, 0.5);
     game.physics.arcade.enable(this.player);
-    this.player.body.gravity.y = 900;
+    this.player.animations.add('runRight', [6,7,8], 10, true);
+    this.player.animations.add('runLeft', [3,4,5], 10, true);
     this.player.body.collideWorldBounds = true;
 
     // Add enemy group
@@ -74,6 +74,12 @@ var playState = {
     game.physics.arcade.overlap(this.fireballs, this.enemies, this.enemyHit, null, this);
     game.physics.arcade.overlap(this.player, this.golds, this.collectGold, null, this);
 
+    if (game.global.playerDirection === "right"){
+      this.player.animations.play('runRight');
+    } else {
+      this.player.animations.play('runLeft');
+    }
+
     this.movePlayer();
 
     if (this.game.time.now > this.nextEnemy){
@@ -89,48 +95,67 @@ var playState = {
     }
   },
 
+
+  scaleSize: function(target, additionalRatioMultiplier){
+    if (typeof additionalRatioMultiplier === 'undefined'){
+      additionalRatioMultiplier = 1;
+    }
+    var animation = game.add.tween(target.scale);
+    var ratio = (0.5 + 0.5 * (target.y + target.height / 2) / (this.game.height - this.ground.height)) * additionalRatioMultiplier;
+    animation.to({x: ratio, y: ratio}, 50);
+    animation.start();
+  },
+
+  updatePlayerDirection: function(direction){
+    if (game.global.playerDirection !== direction){
+      game.global.playerDirection = direction;
+    }
+  },
+
   movePlayer: function(){
-    if(!this.player.body.touching.down){
-      this.player.frame = 6;
-    } else {
-      this.player.animations.play('run');
-    }
-
-    if(this.cursor.up.isDown && this.player.body.touching.down){
-      this.player.body.velocity.y = -450;
-    }
-
     if(this.cursor.left.isDown){
+      this.updatePlayerDirection("left");
       this.player.body.velocity.x = -200;
     } else if (this.cursor.right.isDown){
+      this.updatePlayerDirection("right");
       this.player.body.velocity.x = 200;
     } else {
+      this.updatePlayerDirection("right");
       this.player.body.velocity.x = 0;
+    }
+
+    if (this.cursor.up.isDown){
+      this.player.body.velocity.y = -200;
+      this.scaleSize(this.player);
+    } else if (this.cursor.down.isDown){
+      this.player.body.velocity.y = 200;
+      this.scaleSize(this.player);
+    } else {
+      this.player.body.velocity.y = 0;
     }
 
     if(this.fireButton.isDown && this.game.time.now > this.nextFireball){
       this.nextFireball = this.game.time.now + 50;
-      this.fireFireball();
-    }
-
-    if(this.fireButton.onTap && this.game.time.now > this.nextFireball){
-      this.nextFireball = this.game.time.now + 50;
-      this.fireFireball();
+      this.fireFireball(game.global.playerDirection);
     }
 
   },
 
-  fireFireball: function(){
+  fireFireball: function(direction){
     var fireball = this.fireballs.getFirstDead();
     if (!fireball){
       return;
     }
-    fireball.scale.setTo(0.5, 0.5);
     fireball.animations.add('fire', [0,1,2,3], 10, true);
-
     fireball.animations.play('fire');
-    fireball.reset(this.player.x + 20, this.player.y);
-    fireball.body.velocity.x = 400;
+    if (direction === "right"){
+      fireball.reset(this.player.x + 20, this.player.y);
+      fireball.body.velocity.x = 400;
+    } else {
+      fireball.reset(this.player.x - this.player.width / 2 - 20, this.player.y);
+      fireball.body.velocity.x = -400;
+    }
+    this.scaleSize(fireball, 0.5);
   },
 
   newEnemy: function(){
@@ -179,6 +204,7 @@ var game = new Phaser.Game(568, 320, Phaser.AUTO, 'game-div');
 
 game.global = {
   score: 0,
+  playerDirection: "right",
 };
 
 game.state.add('play', playState);
