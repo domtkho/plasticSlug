@@ -112,6 +112,10 @@ var playState = {
       this.nextPowerUp = this.game.time.now + powerUpDelay;
       this.newPowerUp();
     }
+
+    if (this.game.global.lives === 0){
+      game.state.start('play');
+    }
   },
 
   movePlayer: function(){
