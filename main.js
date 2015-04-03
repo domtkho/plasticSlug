@@ -12,8 +12,6 @@ var playState = {
   create: function(){
     game.stage.backgroundColor = "#009ACE";
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    this.scoreLabel = game.add.text(20, 20, 'Score: 0',
-      {font: "20px Arial", fill: "#FFFFFF"});
 
     // Add controls
     this.cursor = game.input.keyboard.createCursorKeys();
@@ -22,8 +20,12 @@ var playState = {
     // Add road
     this.road = this.game.add.tileSprite(0, 0, this.game.width, game.cache.getImage("road").height, "road");
 
+    // Add score label
+    this.scoreLabel = game.add.text(20, 20, 'Score: 0',
+      {font: "20px Arial", fill: "#FFFFFF"});
+
     // Add player
-    this.player = this.game.add.sprite(100, this.game.height / 2, "player");
+    this.player = this.game.add.sprite(this.game.width / 2, this.game.height / 2, "player");
     this.player.anchor.setTo(1, 0.5);
     game.physics.arcade.enable(this.player);
     this.player.animations.add('runRight', [6,7,8], 10, true);
@@ -80,30 +82,13 @@ var playState = {
     if (this.game.time.now > this.nextEnemy){
       var enemyDelay = 300 + Math.round(Math.random() * 1000);
       this.nextEnemy = this.game.time.now + enemyDelay;
-      this.newEnemy();
+      this.newEnemy(this.randomLeftRight());
     }
 
     if (this.game.time.now > this.nextGold){
       var goldDelay = 0 + Math.round(Math.random() * 5000);
       this.nextGold = this.game.time.now + goldDelay;
       this.newGold();
-    }
-  },
-
-
-  scaleSize: function(target, additionalRatioMultiplier){
-    if (typeof additionalRatioMultiplier === 'undefined'){
-      additionalRatioMultiplier = 1;
-    }
-    var animation = game.add.tween(target.scale);
-    var ratio = (0.8 + 0.2 * target.y / this.game.height) * additionalRatioMultiplier;
-    animation.to({x: ratio, y: ratio}, 50);
-    animation.start();
-  },
-
-  updatePlayerDirection: function(direction){
-    if (game.global.playerDirection !== direction){
-      game.global.playerDirection = direction;
     }
   },
 
@@ -141,6 +126,7 @@ var playState = {
     if (!fireball){
       return;
     }
+    this.scaleSize(fireball, 0.5);
     fireball.animations.add('fire', [0,1,2,3], 10, true);
     fireball.animations.play('fire');
     if (direction === "right"){
@@ -150,32 +136,11 @@ var playState = {
       fireball.reset(this.player.x - this.player.width / 2 - 20, this.player.y);
       fireball.body.velocity.x = -400;
     }
-    this.scaleSize(fireball, 0.5);
   },
 
-  newEnemy: function(){
-    var enemy = this.enemies.getFirstDead();
-    if(!enemy){
-      return;
-    }
-    enemy.animations.add('run', [0,1,2], 10, true);
-
-    enemy.reset(this.game.width, this.game.height / 2 );
-    enemy.body.velocity.x = -300;
-    enemy.animations.play('run');
-  },
-
-  newGold: function(){
-    var gold = this.golds.getFirstDead();
-    if (!gold){
-      return;
-    }
-    gold.animations.add('spin',[0,1,2,3,4,5,6,7], 10, true);
-
-    gold.reset(this.game.width, this.game.height / 2);
-    gold.body.velocity.x = -300;
-    gold.animations.play('spin');
-
+  collectGold: function(player, gold){
+    gold.kill();
+    this.increaseScore(20);
   },
 
   enemyHit: function(enemy, fireball){
@@ -184,15 +149,84 @@ var playState = {
     this.increaseScore(100);
   },
 
-  collectGold: function(player, gold){
-    gold.kill();
-    this.increaseScore(20);
+  newEnemy: function(direction){
+    var enemy = this.enemies.getFirstDead();
+    if(!enemy){
+      return;
+    }
+    enemy.animations.add('runLeft', [0,1,2], 10, true);
+    enemy.animations.add('runRight', [3,4,5], 10, true);
+    if (direction === 'left'){
+      enemy.reset(this.game.width, this.game.height * this.randomHeightMultiplier() );
+      this.scaleSize(enemy);
+      enemy.body.velocity.x = -200;
+      enemy.animations.play('runLeft');
+      console.log("running LEFT");
+    } else {
+      enemy.anchor.setTo(1, 0.5);
+      enemy.reset(0, this.game.height * this.randomHeightMultiplier() );
+      this.scaleSize(enemy);
+      enemy.body.velocity.x = 100;
+      enemy.animations.play('runRight');
+    }
+  },
+
+  newGold: function(){
+    var gold = this.golds.getFirstDead();
+    if (!gold){
+      return;
+    }
+    this.scaleSize(gold);
+    gold.animations.add('spin',[0,1,2,3,4,5,6,7], 10, true);
+
+    gold.reset(this.game.width, this.game.height * this.randomHeightMultiplier());
+    gold.body.velocity.x = -100;
+    gold.animations.play('spin');
+
+  },
+
+  updatePlayerDirection: function(direction){
+    if (game.global.playerDirection !== direction){
+      game.global.playerDirection = direction;
+    }
   },
 
   increaseScore: function(amount){
     game.global.score += amount;
     this.scoreLabel.text = "Score: " + game.global.score;
   },
+
+  scaleSize: function(target, additionalRatioMultiplier){
+    if (typeof additionalRatioMultiplier === 'undefined'){
+      additionalRatioMultiplier = 1;
+    }
+    var animation = game.add.tween(target.scale);
+    var ratio = (0.8 + 0.2 * target.y / this.game.height) * additionalRatioMultiplier;
+    animation.to({x: ratio, y: ratio}, 50);
+    animation.start();
+  },
+
+  randomLeftRight: function(){
+    var direction = ["left", "right"];
+    var sample = Math.round(Math.random());
+    return direction[sample];
+  },
+
+  randomHeightMultiplier: function(){
+    var  lowerBound = 0.1,
+         upperBound = 0.9,
+         multiplier = Math.random();
+    if (multiplier < lowerBound){
+      return lowerBound;
+    } else if (multiplier > upperBound) {
+      return upperBound;
+    } else {
+      return multiplier;
+    }
+  }
+
+
+
 };
 
 var game = new Phaser.Game(568, 320, Phaser.AUTO, 'game-div');
