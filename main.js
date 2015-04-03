@@ -6,6 +6,7 @@ var playState = {
     game.load.spritesheet('enemy', 'assets/penguin.png', 64, 64);
     game.load.spritesheet('fireball', 'assets/fireball.png', 64, 64);
     game.load.spritesheet('gold', 'assets/gold.png', 32, 32);
+    game.load.spritesheet('powerUp', 'assets/powerUp.png', 81, 81);
     game.load.image('road', 'assets/road.png');
   },
 
@@ -20,24 +21,18 @@ var playState = {
     // Add road
     this.road = this.game.add.tileSprite(0, 0, this.game.width, game.cache.getImage("road").height, "road");
 
-    // Add score label
-    this.scoreLabel = game.add.text(20, 20, 'Score: 0',
-      {font: "20px Arial", fill: "#FFFFFF"});
-
     // Add player
     this.player = this.game.add.sprite(this.game.width / 2, this.game.height / 2, "player");
     this.player.anchor.setTo(1, 0.5);
     game.physics.arcade.enable(this.player);
-    this.player.animations.add('runRight', [6,7,8], 10, true);
-    this.player.animations.add('runLeft', [3,4,5], 10, true);
+    this.player.animations.add('runRight', [6,7,8], 8, true);
+    this.player.animations.add('runLeft', [3,4,5], 8, true);
     this.player.body.collideWorldBounds = true;
 
     // Add enemy group
     this.enemies = game.add.group();
     this.enemies.enableBody = true;
     this.enemies.createMultiple(20, 'enemy');
-    this.enemies.setAll('anchor.x', 0);
-    this.enemies.setAll('anchor.y', 0.5);
     this.enemies.setAll('checkWorldBounds', true);
     this.enemies.setAll('outOfBoundsKill', true);
 
@@ -59,17 +54,38 @@ var playState = {
     this.golds.setAll('checkWorldBounds', true);
     this.golds.setAll('outOfBoundsKill', true);
 
+    // Add powerUps group
+    this.powerUps = game.add.group();
+    this.powerUps.enableBody = true;
+    this.powerUps.createMultiple(20, 'powerUp');
+    this.powerUps.setAll('anchor.x', 0);
+    this.powerUps.setAll('anchor.y', 0.5);
+    this.powerUps.setAll('checkWorldBounds', true);
+    this.powerUps.setAll('outOfBoundsKill', true);
+
+    // Add score label
+    this.scoreLabel = game.add.text(20, 20, 'Score: 0', {font: "20px Arial", fill: "#FFFFFF"});
+    this.goldLabel = game.add.text(170, 20, 'Gold: 0', {font: "20px Arial", fill: "#FFFFFF"});
+    this.powerUpLevelLabel = game.add.text(320, 20, 'Power: 1', {font: "20px Arial", fill: "#FFFFFF"});
+    this.livesLabel = game.add.text(470, 20, 'Lives: 3', {font: "20px Arial", fill: "#FFFFFF"});
+
     // Initialze variables
     this.nextFireball = 0;
     this.nextEnemy = 0;
     this.nextGold = 0;
+    this.nextPowerUp = 0;
     this.game.global.score = 0;
+    this.game.global.gold = 0;
+    this.game.global.powerUpLevel = 1;
+    this.game.global.lives = 3;
   },
 
   update: function(){
     this.road.tilePosition.x -= 1;
     game.physics.arcade.overlap(this.fireballs, this.enemies, this.enemyHit, null, this);
     game.physics.arcade.overlap(this.player, this.golds, this.collectGold, null, this);
+    game.physics.arcade.overlap(this.player, this.powerUps, this.collectPowerUp, null, this);
+    game.physics.arcade.overlap(this.player, this.enemies, this.playerHit, null, this);
 
     if (game.global.playerDirection === "right"){
       this.player.animations.play('runRight');
@@ -80,7 +96,7 @@ var playState = {
     this.movePlayer();
 
     if (this.game.time.now > this.nextEnemy){
-      var enemyDelay = 300 + Math.round(Math.random() * 1000);
+      var enemyDelay = 500 + Math.round(Math.random() * 1000);
       this.nextEnemy = this.game.time.now + enemyDelay;
       this.newEnemy(this.randomLeftRight());
     }
@@ -89,6 +105,12 @@ var playState = {
       var goldDelay = 0 + Math.round(Math.random() * 5000);
       this.nextGold = this.game.time.now + goldDelay;
       this.newGold();
+    }
+
+    if (this.game.time.now > this.nextPowerUp){
+      var powerUpDelay = 2000 + Math.round(Math.random() * 5000);
+      this.nextPowerUp = this.game.time.now + powerUpDelay;
+      this.newPowerUp();
     }
   },
 
@@ -115,7 +137,7 @@ var playState = {
     }
 
     if(this.fireButton.isDown && this.game.time.now > this.nextFireball){
-      this.nextFireball = this.game.time.now + 150;
+      this.nextFireball = this.game.time.now + 200;
       this.fireFireball(game.global.playerDirection);
     }
 
@@ -126,7 +148,7 @@ var playState = {
     if (!fireball){
       return;
     }
-    this.scaleSize(fireball, 0.5);
+    this.scaleSize(fireball, 0.5 * (1 + this.game.global.powerUpLevel * 0.2));
     fireball.animations.add('fire', [0,1,2,3], 10, true);
     fireball.animations.play('fire');
     if (direction === "right"){
@@ -140,13 +162,24 @@ var playState = {
 
   collectGold: function(player, gold){
     gold.kill();
-    this.increaseScore(20);
+    this.increaseAttribute("gold", 20);
+  },
+
+  collectPowerUp: function(player, powerUp){
+    powerUp.kill();
+    this.increaseAttribute("powerUpLevel", 1);
   },
 
   enemyHit: function(enemy, fireball){
     fireball.kill();
     enemy.kill();
-    this.increaseScore(100);
+    this.increaseAttribute("score", 100);
+  },
+
+  playerHit: function(player, enemy){
+    enemy.kill();
+    this.increaseAttribute("lives", -1);
+    this.resetPowerUpLevel();
   },
 
   newEnemy: function(direction){
@@ -157,11 +190,11 @@ var playState = {
     enemy.animations.add('runLeft', [0,1,2], 10, true);
     enemy.animations.add('runRight', [3,4,5], 10, true);
     if (direction === 'left'){
+      enemy.anchor.setTo(0, 0.5);
       enemy.reset(this.game.width, this.game.height * this.randomHeightMultiplier() );
       this.scaleSize(enemy);
       enemy.body.velocity.x = -200;
       enemy.animations.play('runLeft');
-      console.log("running LEFT");
     } else {
       enemy.anchor.setTo(1, 0.5);
       enemy.reset(0, this.game.height * this.randomHeightMultiplier() );
@@ -182,7 +215,19 @@ var playState = {
     gold.reset(this.game.width, this.game.height * this.randomHeightMultiplier());
     gold.body.velocity.x = -100;
     gold.animations.play('spin');
+  },
 
+  newPowerUp: function(){
+    var powerUp = this.powerUps.getFirstDead();
+    if (!powerUp){
+      return;
+    }
+    this.scaleSize(powerUp);
+    powerUp.animations.add('spin',[24,25,26,27,28,29,30,31], 10, true);
+
+    powerUp.reset(this.game.width, this.game.height * this.randomHeightMultiplier());
+    powerUp.body.velocity.x = -100;
+    powerUp.animations.play('spin');
   },
 
   updatePlayerDirection: function(direction){
@@ -191,9 +236,21 @@ var playState = {
     }
   },
 
-  increaseScore: function(amount){
-    game.global.score += amount;
-    this.scoreLabel.text = "Score: " + game.global.score;
+  increaseAttribute: function(attr, amount){
+    var label = String(attr) + "Label";
+    var mapping = {
+      "score"       : "Score",
+      "gold"        : "Gold",
+      "powerUpLevel": "Power",
+      "lives"       : "Lives",
+    };
+    game.global[attr] += amount;
+    this[label].text = mapping[attr] + ": " + game.global[attr];
+  },
+
+  resetPowerUpLevel: function(){
+    this.game.global.powerUpLevel = 1;
+    this.powerUpLevelLabel.text = "Power: " + game.global.powerUpLevel;
   },
 
   scaleSize: function(target, additionalRatioMultiplier){
@@ -201,7 +258,7 @@ var playState = {
       additionalRatioMultiplier = 1;
     }
     var animation = game.add.tween(target.scale);
-    var ratio = (0.8 + 0.2 * target.y / this.game.height) * additionalRatioMultiplier;
+    var ratio = (1 + (target.y - this.game.height / 2) / this.game.height / 2) * additionalRatioMultiplier;
     animation.to({x: ratio, y: ratio}, 50);
     animation.start();
   },
@@ -213,8 +270,8 @@ var playState = {
   },
 
   randomHeightMultiplier: function(){
-    var  lowerBound = 0.1,
-         upperBound = 0.9,
+    var  lowerBound = 0.2,
+         upperBound = 0.8,
          multiplier = Math.random();
     if (multiplier < lowerBound){
       return lowerBound;
@@ -224,15 +281,15 @@ var playState = {
       return multiplier;
     }
   }
-
-
-
 };
 
 var game = new Phaser.Game(568, 320, Phaser.AUTO, 'game-div');
 
 game.global = {
+  lives: 0,
   score: 0,
+  gold: 0,
+  powerUpLevel: 1,
   playerDirection: "right",
 };
 
