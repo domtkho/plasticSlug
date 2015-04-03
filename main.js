@@ -6,7 +6,7 @@ var playState = {
     game.load.spritesheet('enemy', 'assets/penguin.png', 64, 64);
     game.load.spritesheet('fireball', 'assets/fireball.png', 64, 64);
     game.load.spritesheet('gold', 'assets/gold.png', 32, 32);
-    game.load.image('ground', 'assets/wallHorizontal.png');
+    game.load.image('road', 'assets/road.png');
   },
 
   create: function(){
@@ -19,15 +19,11 @@ var playState = {
     this.cursor = game.input.keyboard.createCursorKeys();
     this.fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
-    // Add ground
-    this.ground = this.game.add.sprite(0, game.height, "ground");
-    this.ground.anchor.setTo(0, 1);
-    this.ground.scale.setTo(3, 3);
-    game.physics.arcade.enable(this.ground);
-    this.ground.body.immovable = true;
+    // Add road
+    this.road = this.game.add.tileSprite(0, 0, this.game.width, game.cache.getImage("road").height, "road");
 
     // Add player
-    this.player = this.game.add.sprite(100, this.game.height - this.ground.height - 32, "player");
+    this.player = this.game.add.sprite(100, this.game.height / 2, "player");
     this.player.anchor.setTo(1, 0.5);
     game.physics.arcade.enable(this.player);
     this.player.animations.add('runRight', [6,7,8], 10, true);
@@ -57,10 +53,9 @@ var playState = {
     this.golds.enableBody = true;
     this.golds.createMultiple(20, 'gold');
     this.golds.setAll('anchor.x', 0);
-    this.golds.setAll('anchor.y', 1);
+    this.golds.setAll('anchor.y', 0.5);
     this.golds.setAll('checkWorldBounds', true);
     this.golds.setAll('outOfBoundsKill', true);
-
 
     // Initialze variables
     this.nextFireball = 0;
@@ -70,7 +65,7 @@ var playState = {
   },
 
   update: function(){
-    game.physics.arcade.collide(this.player, this.ground);
+    this.road.tilePosition.x -= 1;
     game.physics.arcade.overlap(this.fireballs, this.enemies, this.enemyHit, null, this);
     game.physics.arcade.overlap(this.player, this.golds, this.collectGold, null, this);
 
@@ -101,7 +96,7 @@ var playState = {
       additionalRatioMultiplier = 1;
     }
     var animation = game.add.tween(target.scale);
-    var ratio = (0.5 + 0.5 * (target.y + target.height / 2) / (this.game.height - this.ground.height)) * additionalRatioMultiplier;
+    var ratio = (0.8 + 0.2 * target.y / this.game.height) * additionalRatioMultiplier;
     animation.to({x: ratio, y: ratio}, 50);
     animation.start();
   },
@@ -135,7 +130,7 @@ var playState = {
     }
 
     if(this.fireButton.isDown && this.game.time.now > this.nextFireball){
-      this.nextFireball = this.game.time.now + 50;
+      this.nextFireball = this.game.time.now + 150;
       this.fireFireball(game.global.playerDirection);
     }
 
@@ -165,7 +160,7 @@ var playState = {
     }
     enemy.animations.add('run', [0,1,2], 10, true);
 
-    enemy.reset(this.game.width, this.game.height - this.ground.height - enemy.height/2);
+    enemy.reset(this.game.width, this.game.height / 2 );
     enemy.body.velocity.x = -300;
     enemy.animations.play('run');
   },
@@ -177,7 +172,7 @@ var playState = {
     }
     gold.animations.add('spin',[0,1,2,3,4,5,6,7], 10, true);
 
-    gold.reset(this.game.width, this.game.height - this.ground.height);
+    gold.reset(this.game.width, this.game.height / 2);
     gold.body.velocity.x = -300;
     gold.animations.play('spin');
 
