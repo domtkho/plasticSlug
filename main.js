@@ -17,14 +17,21 @@ var playState = {
   create: function(){
     game.stage.backgroundColor = "#009ACE";
     game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.input.addPointer();
 
     // Add controls
     this.cursor = game.input.keyboard.createCursorKeys();
     this.fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
-    // Add touch controls
-    this.game.touchControl = this.game.plugins.add(Phaser.Plugin.TouchControl);
-    this.game.touchControl.inputEnable();
+    // Add joystick touch controls
+    this.joystick = new VirtualJoystick({
+      mouseSupport: true,
+      stationaryBase: true,
+      baseX: 100,
+      baseY: 200,
+      limitStickTravel: true,
+      stickRadius: 50
+    });
 
     // Add road
     this.road = this.game.add.tileSprite(0, 0, this.game.width, game.cache.getImage("road").height, "road");
@@ -77,6 +84,9 @@ var playState = {
     this.powerUpLevelLabel = game.add.text(320, 20, 'Power: 1', {font: "20px Arial", fill: "#FFFFFF"});
     this.livesLabel = game.add.text(470, 20, 'Lives: 3', {font: "20px Arial", fill: "#FFFFFF"});
 
+    // Add fire button
+    this.add.button(400, 200, 'touch', this.fireFireball, this,0,0,1,0);
+
     // Initialze variables
     this.nextFireball = 0;
     this.nextEnemy = 0;
@@ -94,21 +104,6 @@ var playState = {
     game.physics.arcade.overlap(this.player, this.golds, this.collectGold, null, this);
     game.physics.arcade.overlap(this.player, this.powerUps, this.collectPowerUp, null, this);
     game.physics.arcade.overlap(this.player, this.enemies, this.playerHit, null, this);
-    var speed = this.game.touchControl.speed;
-    var delay=0;
-
-    if (Math.abs(speed.y) < Math.abs(speed.x)){
-      delay = parseInt(1000 / Math.abs((this.easeInSpeed(speed.x)) * 10), 10);
-
-      // moving mainly right or left
-      if (this.game.touchControl.cursors.left) {
-        this.player.play('runLeft');
-      } else if (this.game.touchControl.cursors.right) {
-        this.player.play('runRight');
-      }
-    } else {
-      this.player.animations.stop(0, true);
-    }
 
     this.movePlayer();
 
@@ -140,21 +135,25 @@ var playState = {
   },
 
   movePlayer: function(){
-    if(this.game.touchControl.cursors.left){
+    if(this.joystick.left()){
+      console.log(this.joystick.right());
       this.updatePlayerDirection("left");
+      this.player.play('runLeft');
       this.player.body.velocity.x = -200;
-    } else if (this.game.touchControl.cursors.right){
+    } else if (this.joystick.right()){
       this.updatePlayerDirection("right");
+      this.player.play('runRight');
       this.player.body.velocity.x = 200;
     } else {
       this.updatePlayerDirection("right");
       this.player.body.velocity.x = 0;
+      this.player.animations.stop(0, true);
     }
 
-    if (this.game.touchControl.cursors.up){
+    if (this.joystick.up()){
       this.player.body.velocity.y = -200;
       this.scaleSize(this.player);
-    } else if (this.game.touchControl.cursors.down){
+    } else if (this.joystick.down()){
       this.player.body.velocity.y = 200;
       this.scaleSize(this.player);
     } else {

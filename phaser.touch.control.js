@@ -73,14 +73,15 @@
   };
 
   Phaser.Plugin.TouchControl.prototype.inputEnable = function() {
+    // this.add(createCompass, this);
     this.input.onDown.add(createCompass, this);
-    this.input.onUp.add(removeCompass, this);
+    // this.input.onUp.add(removeCompass, this);
   };
 
-  Phaser.Plugin.TouchControl.prototype.inputDisable = function() {
-    this.input.onDown.remove(createCompass, this);
-    this.input.onUp.remove(removeCompass, this);
-  };
+  // Phaser.Plugin.TouchControl.prototype.inputDisable = function() {
+  //   this.input.onDown.remove(createCompass, this);
+  //   this.input.onUp.remove(removeCompass, this);
+  // };
 
   var initialPoint;
   var createCompass = function(){
@@ -94,8 +95,8 @@
     }, this);
 
     this.preUpdate=setDirection.bind(this);
-
     initialPoint=this.input.activePointer.position.clone();
+    console.log(initialPoint);
 
   };
   var removeCompass = function () {
