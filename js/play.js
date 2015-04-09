@@ -116,7 +116,7 @@ var playState = {
       return;
     }
 
-    var maxSpeed = 300;
+    var maxSpeed = 100;
     if (this.stick.isDown) {
       this.physics.arcade.velocityFromRotation(this.stick.rotation, this.stick.force * maxSpeed, this.player.body.velocity);
       if(this.player.body.velocity.x < 0){
@@ -125,14 +125,11 @@ var playState = {
       } else if (this.player.body.velocity.x > 0){
         this.updatePlayerDirection("right");
         this.player.play('runRight');
-      } else {
-        this.updatePlayerDirection("right");
-        this.player.body.velocity.x = 0;
-        this.player.animations.stop(0, true);
       }
       this.scaleSize(this.player);
     } else {
       this.player.body.velocity.set(0);
+      this.player.animations.stop(0, true);
     }
 
   },
