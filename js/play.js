@@ -172,6 +172,9 @@ var playState = {
   enemyHit: function(enemy, fireball){
     fireball.kill();
     enemy.kill();
+    this.emitter.x = enemy.x;
+    this.emitter.y = enemy.y;
+    this.emitter.start(true, 600, null, 15);
     this.increaseAttribute("score", 100);
   },
 
