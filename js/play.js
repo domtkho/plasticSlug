@@ -111,10 +111,6 @@ var playState = {
     this.movePlayer();
   },
 
-  easeInSpeed: function(x){
-    return x * Math.abs(x) / 2000;
-  },
-
   movePlayer: function(){
     if (!this.player.alive){
       return;
