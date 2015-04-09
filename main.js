@@ -2,36 +2,53 @@ var playState = {
 
   preload: function(){
     // game.load.image('player', 'assets/player.png');
-    game.load.spritesheet('player', 'assets/character.png', 64, 64);
-    game.load.spritesheet('enemy', 'assets/penguin.png', 64, 64);
-    game.load.spritesheet('fireball', 'assets/fireball.png', 64, 64);
-    game.load.spritesheet('gold', 'assets/gold.png', 32, 32);
-    game.load.spritesheet('powerUp', 'assets/powerUp.png', 81, 81);
-    game.load.image('road', 'assets/road.png');
-    game.load.image('compass', 'assets/compass_rose.png');
-    game.load.image('touch_segment', 'assets/touch_segment.png');
-    game.load.image('touch', 'assets/touch.png');
-
+    this.load.spritesheet('player', 'assets/character.png', 64, 64);
+    this.load.spritesheet('enemy', 'assets/penguin.png', 64, 64);
+    this.load.spritesheet('fireball', 'assets/fireball.png', 64, 64);
+    this.load.spritesheet('gold', 'assets/gold.png', 32, 32);
+    this.load.spritesheet('powerUp', 'assets/powerUp.png', 81, 81);
+    this.load.image('road', 'assets/road.png');
+    this.load.atlas('arcade', 'assets/generic-joystick.png', 'assets/generic-joystick.json');
   },
 
   create: function(){
+    // If the device is not a desktop, so it's a mobile device
+    if (!game.device.desktop) {
+      // Set the type of scaling to 'show all'
+      game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+
+      // Add a blue color to the page, to hide the white borders we might have
+      document.body.style.backgroundColor = '#3498db ';
+
+      // Set the min and max width/height of the game
+      game.scale.minWidth = 250;
+      game.scale.minHeight = 170;
+      game.scale.maxWidth = 1000;
+      game.scale.maxHeight = 680;
+
+      // Center the game on the screen
+      game.scale.pageAlignHorizontally = true;
+      game.scale.pageAlignVertically = true;
+
+      // Apply the scale changes
+      game.scale.setScreenSize(true);
+    }
+
     game.stage.backgroundColor = "#009ACE";
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.input.addPointer();
-
-    // Add controls
-    this.cursor = game.input.keyboard.createCursorKeys();
-    this.fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
     // Add joystick touch controls
-    this.joystick = new VirtualJoystick({
-      mouseSupport: true,
-      stationaryBase: true,
-      baseX: 100,
-      baseY: 200,
-      limitStickTravel: true,
-      stickRadius: 50
-    });
+    this.pad = this.game.plugins.add(Phaser.VirtualJoystick);
+
+    this.stick = this.pad.addStick(80, 250, 100, 'arcade');
+    this.stick.deadZone = 0;
+    this.stick.scale = 0.5;
+
+    this.buttonA = this.pad.addButton(500, 250, 'arcade', 'button1-up', 'button1-down');
+    this.buttonA.onDown.add(this.fireFireball, this);
+    this.buttonA.scale = 0.9;
+    this.buttonA.repeatRate = 100;
+    this.buttonA.addKey(Phaser.Keyboard.CONTROL);
 
     // Add road
     this.road = this.game.add.tileSprite(0, 0, this.game.width, game.cache.getImage("road").height, "road");
@@ -84,11 +101,7 @@ var playState = {
     this.powerUpLevelLabel = game.add.text(320, 20, 'Power: 1', {font: "20px Arial", fill: "#FFFFFF"});
     this.livesLabel = game.add.text(470, 20, 'Lives: 3', {font: "20px Arial", fill: "#FFFFFF"});
 
-    // Add fire button
-    this.add.button(400, 200, 'touch', this.fireFireball, this,0,0,1,0);
-
     // Initialze variables
-    this.nextFireball = 0;
     this.nextEnemy = 0;
     this.nextGold = 0;
     this.nextPowerUp = 0;
@@ -128,6 +141,7 @@ var playState = {
     if (this.game.global.lives === 0){
       game.state.start('play');
     }
+
   },
 
   easeInSpeed: function(x){
@@ -135,43 +149,34 @@ var playState = {
   },
 
   movePlayer: function(){
-    if(this.joystick.left()){
-      console.log(this.joystick.right());
-      this.updatePlayerDirection("left");
-      this.player.play('runLeft');
-      this.player.body.velocity.x = -200;
-    } else if (this.joystick.right()){
-      this.updatePlayerDirection("right");
-      this.player.play('runRight');
-      this.player.body.velocity.x = 200;
-    } else {
-      this.updatePlayerDirection("right");
-      this.player.body.velocity.x = 0;
-      this.player.animations.stop(0, true);
-    }
 
-    if (this.joystick.up()){
-      this.player.body.velocity.y = -200;
-      this.scaleSize(this.player);
-    } else if (this.joystick.down()){
-      this.player.body.velocity.y = 200;
+    var maxSpeed = 300;
+    if (this.stick.isDown) {
+      this.physics.arcade.velocityFromRotation(this.stick.rotation, this.stick.force * maxSpeed, this.player.body.velocity);
+      if(this.player.body.velocity.x < 0){
+        this.updatePlayerDirection("left");
+        this.player.play('runLeft');
+      } else if (this.player.body.velocity.x > 0){
+        this.updatePlayerDirection("right");
+        this.player.play('runRight');
+      } else {
+        this.updatePlayerDirection("right");
+        this.player.body.velocity.x = 0;
+        this.player.animations.stop(0, true);
+      }
       this.scaleSize(this.player);
     } else {
-      this.player.body.velocity.y = 0;
-    }
-
-    if(this.fireButton.isDown && this.game.time.now > this.nextFireball){
-      this.nextFireball = this.game.time.now + 200;
-      this.fireFireball(game.global.playerDirection);
+      this.player.body.velocity.set(0);
     }
 
   },
 
-  fireFireball: function(direction){
+  fireFireball: function(){
     var fireball = this.fireballs.getFirstDead();
     if (!fireball){
       return;
     }
+    var direction = this.game.global.playerDirection;
     this.scaleSize(fireball, 0.5 * (1 + this.game.global.powerUpLevel * 0.2));
     fireball.animations.add('fire', [0,1,2,3], 10, true);
     fireball.animations.play('fire');
