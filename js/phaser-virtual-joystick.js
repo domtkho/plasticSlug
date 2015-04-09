@@ -11,7 +11,7 @@
 
 /**
  * The VirtualJoystick plugin.
- * 
+ *
  * This plugin is responsible for all joysticks and buttons created within your game.
  *
  * Add it to your game via the Phaser Plugin Manager:
@@ -19,7 +19,7 @@
  * `this.pad = this.game.plugins.add(Phaser.VirtualJoystick);`
  *
  * Once created you can then add new joysticks and buttons using `addStick` and `addButton` respectively.
- * 
+ *
  * This plugin can contain multiple sticks and buttons and will handle processing and updating them all.
  *
  * @class VirtualJoystick
@@ -49,7 +49,7 @@ Phaser.VirtualJoystick = function (game, parent) {
     * @private
     */
     this._pointerTotal = 0;
-    
+
 };
 
 Phaser.VirtualJoystick.prototype = Object.create(Phaser.Plugin.prototype);
@@ -109,7 +109,7 @@ Phaser.VirtualJoystick.prototype.init = function () {
  * Creates a new `Stick` object.
  *
  * `var stick = pad.addStick(x, y, distance, 'texture');`
- * 
+ *
  * It consists of two Sprites: one representing the 'base' of the joystick and the other the 'stick' itself, which is the part
  * that the player grabs hold of and interacts with. As the stick is moved you can read back the force being applied, either globally
  * or on a per axis basis.
@@ -118,7 +118,7 @@ Phaser.VirtualJoystick.prototype.init = function () {
  * player touches the screen by setting `showOnTouch` to true.
  *
  * The Stick sprites are added to `Game.Stage`, which is always above `Game.World` in which all other Sprites and display objects live.
- * 
+ *
  * Stick force values are analogue, that is they are values between 0 and 1 that vary depending on how the stick
  * is being moved. This allows players to have fine-grained control over your game. If you require just an 'on / off' response you may
  * wish to use the DPad class instead.
@@ -225,7 +225,7 @@ Phaser.VirtualJoystick.prototype.removeStick = function (stick) {
  * Creates a new `Button` object - a virtual button.
  *
  * `var button = pad.addButton(x, y, 'texture', 'button-up', 'button-down');`
- * 
+ *
  * It consists of one sprite with two frames. One frame depicts the button as it's held down, the other when up.
  *
  * The Button sprite is added to `Game.Stage`, which is always above `Game.World` in which all other Sprites and display objects live.
@@ -315,7 +315,7 @@ Phaser.VirtualJoystick.prototype.destroy = function () {
  * A `Stick` is a virtual joystick. It belongs to a parent `Pad` object which is responsible for creating and updating it.
  *
  * Create a new stick by using the `Pad.addStick` method.
- * 
+ *
  * It consists of two Sprites: one representing the 'base' of the joystick and the other the 'stick' itself, which is the part
  * that the player grabs hold of and interacts with. As the stick is moved you can read back the force being applied, either globally
  * or on a per axis basis.
@@ -324,7 +324,7 @@ Phaser.VirtualJoystick.prototype.destroy = function () {
  * player touches the screen by setting `showOnTouch` to true.
  *
  * The Stick sprites are added to `Game.Stage`, which is always above `Game.World` in which all other Sprites and display objects live.
- * 
+ *
  * Stick force values are analogue, that is they are values between 0 and 1 that vary depending on how the stick
  * is being moved. This allows players to have fine-grained control over your game. If you require just an 'on / off' response you may
  * wish to use the DPad class instead.
@@ -429,7 +429,7 @@ Phaser.VirtualJoystick.Stick = function (pad, x, y, distance, texture, baseFrame
     * If it has a `deadZone` set then it's not dispatched until it has moved beyond the limits of the deadZone.
     * When this signal is dispatched it sends 2 parameters: this Stick and the Phaser.Pointer object that caused the event:
     * `onDown(Phaser.VirtualJoystick.Stick, Phaser.Pointer)`
-    * 
+    *
     * @property {Phaser.Signal} onDown
     */
     this.onDown = new Phaser.Signal();
@@ -438,7 +438,7 @@ Phaser.VirtualJoystick.Stick = function (pad, x, y, distance, texture, baseFrame
     * The onUp signal is dispatched as soon as the joystick is released, having previously been in an `isDown` state.
     * When this signal is dispatched it sends 2 parameters: this Stick and the Phaser.Pointer object that caused the event:
     * `onUp(Phaser.VirtualJoystick.Stick, Phaser.Pointer)`
-    * 
+    *
     * @property {Phaser.Signal} onUp
     */
     this.onUp = new Phaser.Signal();
@@ -449,7 +449,7 @@ Phaser.VirtualJoystick.Stick = function (pad, x, y, distance, texture, baseFrame
     * `onMove(Phaser.VirtualJoystick.Stick, force, forceX, forceY)`
     * This signal is only dispatched when a touch move event is received, even if the stick is held in a specific direction.
     * If you wish to constantly check the position of the joystick then you should use the `onUpdate` signal instead of `onMove`.
-    * 
+    *
     * @property {Phaser.Signal} onMove
     */
     this.onMove = new Phaser.Signal();
@@ -458,9 +458,9 @@ Phaser.VirtualJoystick.Stick = function (pad, x, y, distance, texture, baseFrame
     * The onUpdate signal is dispatched constantly for as long as the joystick is in an `isDown` state.
     * When this signal is dispatched it sends 4 parameters: this Stick and the `force`, `forceX` and `forceY` values:
     * `onUpdate(Phaser.VirtualJoystick.Stick, force, forceX, forceY)`
-    * This is a high frequency signal so be careful what is bound to it. If there are computationally cheaper ways of 
+    * This is a high frequency signal so be careful what is bound to it. If there are computationally cheaper ways of
     * reacting to this joysticks movement then you should explore them.
-    * 
+    *
     * @property {Phaser.Signal} onUpdate
     */
     this.onUpdate = new Phaser.Signal();
@@ -491,8 +491,8 @@ Phaser.VirtualJoystick.Stick = function (pad, x, y, distance, texture, baseFrame
 
     /**
     * The quadrant the joystick is in.
-    * Where 315 to 45 degrees is quadrant 0. 
-    * 45 to 135 degrees is quadrant 1. 
+    * Where 315 to 45 degrees is quadrant 0.
+    * 45 to 135 degrees is quadrant 1.
     * 135 to 225 degrees is quadrant 2.
     * 225 to 315 degrees is quadrant 3.
     * @property {integer} quadrant
@@ -842,7 +842,7 @@ Phaser.VirtualJoystick.Stick.prototype = {
 
     /**
      * Destroys this Stick.
-     * 
+     *
      * Removes all associated event listeners and signals and calls destroy on the stick sprites.
      *
      * @method Phaser.VirtualJoystick.Stick#destroy
@@ -887,7 +887,7 @@ Phaser.VirtualJoystick.Stick.prototype = {
      * Renders out a debug view of this Stick to the `Phaser.Debug` handler.
      *
      * It optionally renders the geometry involved in the stick hit areas and calculation line.
-     * 
+     *
      * It also optionally renders text information relating to the current forces and angles. The text is rendered
      * to the right of the joystick image unless an x parameter is specified.
      *
@@ -958,7 +958,7 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "rotation", {
 /**
 * The x coordinate the joystick is rendered at. Value should be given in pixel coordinates based on game dimensions.
 * Use this to change the position of the joystick on-screen. Value can even be tweened to display or hide the joystick in interesting ways.
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#posX
 * @property {number} posX
 */
@@ -992,7 +992,7 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "posX", {
 /**
 * The y coordinate the joystick is rendered at. Value should be given in pixel coordinates based on game dimensions.
 * Use this to change the position of the joystick on-screen. Value can even be tweened to display or hide the joystick in interesting ways.
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#posY
 * @property {number} posY
 */
@@ -1025,12 +1025,12 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "posY", {
 
 /**
 * The current force being applied to the joystick.
-* 
+*
 * This is a value between 0 and 1 calculated based on the distance of the stick from its base.
 * It can be used to apply speed to physics objects, for example:
-* 
+*
 * `ArcadePhysics.velocityFromRotation(Stick.rotation, Stick.force * maxSpeed, Sprite.body.velocity)`
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#force
 * @property {number} force
 * @readOnly
@@ -1047,11 +1047,11 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "force", {
 
 /**
 * The current force being applied to the joystick on the horizontal axis.
-* 
+*
 * This is a value between 0 and 1 calculated based on the distance of the stick from its base.
 *
 * If you need to know which direction the Stick is facing (i.e. left or right) then see the `x` property value.
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#forceX
 * @property {number} forceX
 * @readOnly
@@ -1068,11 +1068,11 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "forceX", {
 
 /**
 * The current force being applied to the joystick on the vertical axis.
-* 
+*
 * This is a value between 0 and 1 calculated based on the distance of the stick from its base.
 *
 * If you need to know which direction the Stick is facing (i.e. up or down) then see the `y` property value.
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#forceY
 * @property {number} forceY
 * @readOnly
@@ -1089,10 +1089,10 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "forceY", {
 
 /**
 * The current x value of the joystick.
-* 
+*
 * This is a value between -1 and 1 calculated based on the distance of the stick from its base.
 * Where -1 is to the left of the base and +1 is to the right.
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#x
 * @property {number} x
 * @readOnly
@@ -1134,10 +1134,10 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "x", {
 
 /**
 * The current y value of the joystick.
-* 
+*
 * This is a value between -1 and 1 calculated based on the distance of the stick from its base.
 * Where -1 is above the base and +1 is below the base.
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#y
 * @property {number} y
 * @readOnly
@@ -1163,7 +1163,7 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "y", {
 
 /**
 * The filterX value is the forceX value adjusted to be used as the mouse input uniform for a filter.
-* 
+*
 * This is a value between 0 and 1 where 0.5 is the center, i.e. the stick un-moved from its base.
 *
 * Use it in the update method like so:
@@ -1171,7 +1171,7 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "y", {
 * `filter.uniforms.mouse.value.x = this.stick.filterX;`
 * `filter.uniforms.mouse.value.y = this.stick.filterY;`
 * `filter.update();`
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#filterX
 * @property {number} filterX
 * @readOnly
@@ -1204,7 +1204,7 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "filterX", {
 
 /**
 * The filterY value is the forceY value adjusted to be used as the mouse input uniform for a filter.
-* 
+*
 * This is a value between 0 and 1 where 0.5 is the center, i.e. the stick un-moved from its base.
 *
 * Use it in the update method like so:
@@ -1212,7 +1212,7 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "filterX", {
 * `filter.uniforms.mouse.value.x = this.stick.filterX;`
 * `filter.uniforms.mouse.value.y = this.stick.filterY;`
 * `filter.update();`
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#filterY
 * @property {number} filterY
 * @readOnly
@@ -1245,14 +1245,14 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "filterY", {
 
 /**
 * The alpha value of the Stick.
-* 
+*
 * Adjusting this value changes the alpha property of both the base and stick sprites.
 * Reading it reads the alpha value of the stick sprite alone.
 *
 * If you need to give the base and stick sprites *different* alpha values then you can access them directly:
 *
 * `stick.baseSprite.alpha` and `stick.stickSprite.alpha`.
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#alpha
 * @property {number} alpha
 */
@@ -1275,7 +1275,7 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "alpha", {
 
 /**
 * The visible state of the Stick.
-* 
+*
 * Adjusting this value changes the visible property of both the base and stick sprites.
 * Reading it reads the visible value of the stick sprite alone.
 *
@@ -1285,7 +1285,7 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "alpha", {
 * If you need to give the base and stick sprites *different* visible values then you can access them directly:
 *
 * `stick.baseSprite.visible` and `stick.stickSprite.visible`.
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#visible
 * @property {number} visible
 */
@@ -1308,11 +1308,11 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "visible", {
 
 /**
 * The distance in pixels that the stick needs to move from the base before it's at 'full force'.
-* 
+*
 * This value is adjusted for scale.
-* 
+*
 * It should never be less than the `Stick.deadZone` value.
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#distance
 * @property {number} distance
 */
@@ -1338,14 +1338,14 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "distance", {
 /**
 * The dead zone is a distance in pixels within which the Stick isn't considered as down or moving.
 * Only when it moves beyond this value does it start dispatching events.
-* 
-* By default the deadZone is 15% of the given distance value. 
+*
+* By default the deadZone is 15% of the given distance value.
 * So if the distance is 100 pixels then the Stick won't be considered as active until it has moved at least 15 pixels from its base.
-* 
+*
 * This value is adjusted for scale.
-* 
+*
 * It should never be more than the `Stick.distance` value.
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#deadZone
 * @property {number} deadZone
 */
@@ -1368,11 +1368,11 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "deadZone", {
 /**
 * The scale of the Stick. The scale is applied evenly to both the x and y axis of the Stick.
 * You cannot specify a different scale per axis.
-* 
+*
 * Adjusting this value changes the scale of both the base and stick sprites and recalculates all of the hit areas.
 *
 * The base and stick sprites must have the same scale.
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#scale
 * @property {number} scale
 */
@@ -1404,7 +1404,7 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "scale", {
 /**
 * A Stick that is set to `showOnTouch` will have `visible` set to false until the player presses on the screen.
 * When this happens the Stick is centered on the x/y coordinate of the finger and can be immediately dragged for movement.
-* 
+*
 * @name Phaser.VirtualJoystick.Stick#showOnTouch
 * @property {boolean} showOnTouch
 */
@@ -1442,7 +1442,7 @@ Object.defineProperty(Phaser.VirtualJoystick.Stick.prototype, "showOnTouch", {
  * A `Button` is a virtual button. It belongs to a parent `Pad` object which is responsible for creating and updating it.
  *
  * Create a new button by using the `Pad.addButton` method.
- * 
+ *
  * It consists of one sprite with two frames. One frame depicts the button as it's held down, the other when up.
  *
  * The Button sprite is added to `Game.Stage`, which is always above `Game.World` in which all other Sprites and display objects live.
@@ -1522,27 +1522,27 @@ Phaser.VirtualJoystick.Button = function (pad, shape, x, y, texture, upFrame, do
 
     /**
     * The onDown signal is dispatched as soon as the button is touched, or clicked when under mouse emulation.
-    * 
+    *
     * When this signal is dispatched it sends 2 parameters: this button and the Phaser.Pointer object that caused the event:
     * `onDown(Phaser.VirtualJoystick.Button, Phaser.Pointer)`
     *
     * If you have added a Key to this button via `addKey` and that is pressed, the signal will send the Phaser.Key as the second
     * parameter instead of a Phaser.Pointer object.
-    * 
+    *
     * @property {Phaser.Signal} onDown
     */
     this.onDown = new Phaser.Signal();
 
     /**
     * The onUp signal is dispatched as soon as the button is released.
-    * 
-    * When this signal is dispatched it sends 3 parameters: 
+    *
+    * When this signal is dispatched it sends 3 parameters:
     * this button, the Phaser.Pointer object that caused the event and the duration the button was down for:
     * `onUp(Phaser.VirtualJoystick.Button, Phaser.Pointer, duration)`
     *
     * If you have added a Key to this button via `addKey` and that is released, the signal will send the Phaser.Key as the second
     * parameter instead of a Phaser.Pointer object.
-    * 
+    *
     * @property {Phaser.Signal} onUp
     */
     this.onUp = new Phaser.Signal();
@@ -1569,7 +1569,7 @@ Phaser.VirtualJoystick.Button = function (pad, shape, x, y, texture, upFrame, do
     * For example: `button.repeatRate = 100` would send the onDown signal once every 100ms for as long as the button is held down.
     *
     * To disable a repeat rate set the value back to zero again.
-    * 
+    *
     * @property {integer} repeatRate
     * @default
     */
@@ -1792,7 +1792,7 @@ Phaser.VirtualJoystick.Button.prototype = {
 
     /**
      * Destroys this Button.
-     * 
+     *
      * Removes all associated event listeners and signals and calls destroy on the button sprite.
      *
      * @method Phaser.VirtualJoystick.Button#destroy
@@ -1822,7 +1822,7 @@ Phaser.VirtualJoystick.Button.prototype = {
 /**
 * The x coordinate the button is rendered at. Value should be given in pixel coordinates based on game dimensions.
 * Use this to change the position of the button on-screen. Value can even be tweened to display or hide the button in interesting ways.
-* 
+*
 * @name Phaser.VirtualJoystick.Button#posX
 * @property {number} posX
 */
@@ -1849,7 +1849,7 @@ Object.defineProperty(Phaser.VirtualJoystick.Button.prototype, "posX", {
 /**
 * The y coordinate the button is rendered at. Value should be given in pixel coordinates based on game dimensions.
 * Use this to change the position of the button on-screen. Value can even be tweened to display or hide the button in interesting ways.
-* 
+*
 * @name Phaser.VirtualJoystick.Button#posY
 * @property {number} posY
 */
@@ -1875,9 +1875,9 @@ Object.defineProperty(Phaser.VirtualJoystick.Button.prototype, "posY", {
 
 /**
 * The alpha value of the Button.
-* 
+*
 * Adjusting this value changes the alpha property of button sprite.
-* 
+*
 * @name Phaser.VirtualJoystick.Button#alpha
 * @property {number} alpha
 */
@@ -1899,12 +1899,12 @@ Object.defineProperty(Phaser.VirtualJoystick.Button.prototype, "alpha", {
 
 /**
 * The visible state of the Button.
-* 
+*
 * Adjusting this value changes the visible property of the button sprite.
 *
 * Note that this button will carry on processing and dispatching events even when not visible.
 * If you wish to disable the button from processing events see `Button.enabled`.
-* 
+*
 * @name Phaser.VirtualJoystick.Button#visible
 * @property {number} visible
 */
@@ -1927,9 +1927,9 @@ Object.defineProperty(Phaser.VirtualJoystick.Button.prototype, "visible", {
 /**
 * The scale of the Button. The scale is applied evenly to both the x and y axis of the Button.
 * You cannot specify a different scale per axis.
-* 
+*
 * Adjusting this value changes the scale of the button sprite and recalculates the hit area.
-* 
+*
 * @name Phaser.VirtualJoystick.Button#scale
 * @property {number} scale
 */
@@ -1960,7 +1960,7 @@ Object.defineProperty(Phaser.VirtualJoystick.Button.prototype, "scale", {
 * The duration in milliseconds that the Button has been held down for.
 * If the button is not currently in an `onDown` state it returns the duration the button was previously held down for.
 * If the button is in an `onDown` state it returns the current duration in ms.
-* 
+*
 * @name Phaser.VirtualJoystick.Button#duration
 * @property {integer} duration
 * @readOnly
@@ -2114,7 +2114,7 @@ Phaser.VirtualJoystick.DPad = function (pad, x, y, distance, texture, neutralFra
     * If it has a `deadZone` set then it's not dispatched until it has moved beyond the limits of the deadZone.
     * When this signal is dispatched it sends 2 parameters: this DPad and the Phaser.Pointer object that caused the event:
     * `onDown(Phaser.VirtualJoystick.DPad, Phaser.Pointer)`
-    * 
+    *
     * @property {Phaser.Signal} onDown
     */
     this.onDown = new Phaser.Signal();
@@ -2123,7 +2123,7 @@ Phaser.VirtualJoystick.DPad = function (pad, x, y, distance, texture, neutralFra
     * The onUp signal is dispatched as soon as the dpad is released, having previously been in an `isDown` state.
     * When this signal is dispatched it sends 2 parameters: this DPad and the Phaser.Pointer object that caused the event:
     * `onUp(Phaser.VirtualJoystick.DPad, Phaser.Pointer)`
-    * 
+    *
     * @property {Phaser.Signal} onUp
     */
     this.onUp = new Phaser.Signal();
@@ -2134,7 +2134,7 @@ Phaser.VirtualJoystick.DPad = function (pad, x, y, distance, texture, neutralFra
     * `onMove(Phaser.VirtualJoystick.DPad, x, y)`
     * This signal is only dispatched when a touch move event is received, even if the dpad is held down in a specific direction.
     * If you wish to constantly check the position of the dpad then you should use the `onUpdate` signal instead of `onMove`.
-    * 
+    *
     * @property {Phaser.Signal} onMove
     */
     this.onMove = new Phaser.Signal();
@@ -2143,9 +2143,9 @@ Phaser.VirtualJoystick.DPad = function (pad, x, y, distance, texture, neutralFra
     * The onUpdate signal is dispatched constantly for as long as the dpad is in an `isDown` state.
     * When this signal is dispatched it sends 3 parameters: this DPad and the `x` and `y` values:
     * `onUpdate(Phaser.VirtualJoystick.DPad, x, y)`
-    * This is a high frequency signal so be careful what is bound to it. If there are computationally cheaper ways of 
+    * This is a high frequency signal so be careful what is bound to it. If there are computationally cheaper ways of
     * reacting to this dpads movement then you should explore them (such as polling DPad.x/y within an update loop)
-    * 
+    *
     * @property {Phaser.Signal} onUpdate
     */
     this.onUpdate = new Phaser.Signal();
@@ -2176,8 +2176,8 @@ Phaser.VirtualJoystick.DPad = function (pad, x, y, distance, texture, neutralFra
 
     /**
     * The quadrant the dpad is in.
-    * Where 315 to 45 degrees is quadrant 0. 
-    * 45 to 135 degrees is quadrant 1. 
+    * Where 315 to 45 degrees is quadrant 0.
+    * 45 to 135 degrees is quadrant 1.
     * 135 to 225 degrees is quadrant 2.
     * 225 to 315 degrees is quadrant 3.
     * @property {integer} quadrant
@@ -2193,7 +2193,7 @@ Phaser.VirtualJoystick.DPad = function (pad, x, y, distance, texture, neutralFra
     this.octant = 0;
 
     /**
-    * The direction the dpad is currently pushed. 
+    * The direction the dpad is currently pushed.
     * If not touched it's Phaser.NONE, otherwise one of Phaser.LEFT, Phaser.RIGHT, Phaser.UP or Phaser.DOWN.
     * @property {integer} direction
     * @protected
@@ -2332,7 +2332,7 @@ Phaser.VirtualJoystick.DPad.prototype = {
         this.timeUp = 0;
 
         this._tracking = false;
-        
+
         this.checkArea();
 
         this.onDown.dispatch(this, this.pointer);
@@ -2524,7 +2524,7 @@ Phaser.VirtualJoystick.DPad.prototype = {
 
     /**
      * Destroys this dpad.
-     * 
+     *
      * Removes all associated event listeners and signals and calls destroy on the dpad sprite.
      *
      * @method Phaser.VirtualJoystick.DPad#destroy
@@ -2566,7 +2566,7 @@ Phaser.VirtualJoystick.DPad.prototype = {
      * Renders out a debug view of this DPad to the `Phaser.Debug` handler.
      *
      * It optionally renders the geometry involved in the dpad hit areas and calculation line.
-     * 
+     *
      * It also optionally renders text information relating to the current forces and angles. The text is rendered
      * to the right of the dpad image unless an x parameter is specified.
      *
@@ -2619,7 +2619,7 @@ Phaser.VirtualJoystick.DPad.prototype = {
 /**
 * The rotation of the stick from its base in radians.
 * Even though a DPad is locked to one of 4 fixed directions the rotation will always be accurate to the radian.
-* 
+*
 * @name Phaser.VirtualJoystick.DPad#rotation
 * @property {number} rotation
 * @readOnly
@@ -2637,7 +2637,7 @@ Object.defineProperty(Phaser.VirtualJoystick.DPad.prototype, "rotation", {
 /**
 * The x coordinate the dpad is rendered at. Value should be given in pixel coordinates based on game dimensions.
 * Use this to change the position of the dpad on-screen. Value can even be tweened to display or hide the dpad in interesting ways.
-* 
+*
 * @name Phaser.VirtualJoystick.DPad#posX
 * @property {number} posX
 */
@@ -2670,7 +2670,7 @@ Object.defineProperty(Phaser.VirtualJoystick.DPad.prototype, "posX", {
 /**
 * The y coordinate the dpad is rendered at. Value should be given in pixel coordinates based on game dimensions.
 * Use this to change the position of the dpad on-screen. Value can even be tweened to display or hide the dpad in interesting ways.
-* 
+*
 * @name Phaser.VirtualJoystick.DPad#posY
 * @property {number} posY
 */
@@ -2705,7 +2705,7 @@ Object.defineProperty(Phaser.VirtualJoystick.DPad.prototype, "posY", {
 *
 * If the dpad is being held to the left it will return -1. If to the right it will return 1.
 * If either not held at all, or not left or right, it will return 0.
-* 
+*
 * @name Phaser.VirtualJoystick.DPad#x
 * @property {number} x
 * @readOnly
@@ -2733,10 +2733,10 @@ Object.defineProperty(Phaser.VirtualJoystick.DPad.prototype, "x", {
 
 /**
 * The current y value of the joystick.
-* 
+*
 * If the dpad is being held up it will return -1. If down it will return 1.
 * If either not held at all, or not up or down, it will return 0.
-* 
+*
 * @name Phaser.VirtualJoystick.DPad#y
 * @property {number} y
 * @readOnly
@@ -2764,9 +2764,9 @@ Object.defineProperty(Phaser.VirtualJoystick.DPad.prototype, "y", {
 
 /**
 * The alpha value of the dpad.
-* 
+*
 * Adjusting this value changes the alpha property of dpad sprite.
-* 
+*
 * @name Phaser.VirtualJoystick.DPad#alpha
 * @property {number} alpha
 */
@@ -2788,12 +2788,12 @@ Object.defineProperty(Phaser.VirtualJoystick.DPad.prototype, "alpha", {
 
 /**
 * The visible state of the dpad.
-* 
+*
 * Adjusting this value changes the visible property of the dpad sprite.
 *
 * Note that this dpad will carry on processing and dispatching events even when not visible.
 * If you wish to disable the dpad from processing events see `DPad.enabled`.
-* 
+*
 * @name Phaser.VirtualJoystick.DPad#visible
 * @property {number} visible
 */
@@ -2815,11 +2815,11 @@ Object.defineProperty(Phaser.VirtualJoystick.DPad.prototype, "visible", {
 
 /**
 * The distance in pixels that the player needs to move their finger from the base before it's at 'full force'.
-* 
+*
 * This value is adjusted for scale.
-* 
+*
 * It should never be less than the `DPad.deadZone` value.
-* 
+*
 * @name Phaser.VirtualJoystick.DPad#distance
 * @property {number} distance
 */
@@ -2845,14 +2845,14 @@ Object.defineProperty(Phaser.VirtualJoystick.DPad.prototype, "distance", {
 /**
 * The dead zone is a distance in pixels within which the dpad isn't considered as down or moving.
 * Only when it moves beyond this value does it start dispatching events.
-* 
-* By default the deadZone is 15% of the given distance value. 
+*
+* By default the deadZone is 15% of the given distance value.
 * So if the distance is 100 pixels then the dpad won't be considered as active until it has moved at least 15 pixels from its base.
-* 
+*
 * This value is adjusted for scale.
-* 
+*
 * It should never be more than the `DPad.distance` value.
-* 
+*
 * @name Phaser.VirtualJoystick.DPad#deadZone
 * @property {number} deadZone
 */
@@ -2875,9 +2875,9 @@ Object.defineProperty(Phaser.VirtualJoystick.DPad.prototype, "deadZone", {
 /**
 * The scale of the dpad. The scale is applied evenly to both the x and y axis of the dpad.
 * You cannot specify a different scale per axis.
-* 
+*
 * Adjusting this value changes the scale of the base sprite and recalculates all of the hit areas.
-* 
+*
 * @name Phaser.VirtualJoystick.DPad#scale
 * @property {number} scale
 */
@@ -2908,7 +2908,7 @@ Object.defineProperty(Phaser.VirtualJoystick.DPad.prototype, "scale", {
 /**
 * A dpad that is set to `showOnTouch` will have `visible` set to false until the player presses on the screen.
 * When this happens the dpad is centered on the x/y coordinate of the finger and can be immediately dragged for movement.
-* 
+*
 * @name Phaser.VirtualJoystick.DPad#showOnTouch
 * @property {boolean} showOnTouch
 */

@@ -1,41 +1,6 @@
 var playState = {
 
-  preload: function(){
-    // game.load.image('player', 'assets/player.png');
-    this.load.spritesheet('player', 'assets/character.png', 64, 64);
-    this.load.spritesheet('enemy', 'assets/penguin.png', 64, 64);
-    this.load.spritesheet('fireball', 'assets/fireball.png', 64, 64);
-    this.load.spritesheet('gold', 'assets/gold.png', 32, 32);
-    this.load.spritesheet('powerUp', 'assets/powerUp.png', 81, 81);
-    this.load.image('road', 'assets/road.png');
-    this.load.atlas('arcade', 'assets/generic-joystick.png', 'assets/generic-joystick.json');
-  },
-
   create: function(){
-    // If the device is not a desktop, so it's a mobile device
-    if (!game.device.desktop) {
-      // Set the type of scaling to 'show all'
-      game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-
-      // Add a blue color to the page, to hide the white borders we might have
-      document.body.style.backgroundColor = '#3498db ';
-
-      // Set the min and max width/height of the game
-      game.scale.minWidth = 250;
-      game.scale.minHeight = 170;
-      game.scale.maxWidth = 1000;
-      game.scale.maxHeight = 680;
-
-      // Center the game on the screen
-      game.scale.pageAlignHorizontally = true;
-      game.scale.pageAlignVertically = true;
-
-      // Apply the scale changes
-      game.scale.setScreenSize(true);
-    }
-
-    game.stage.backgroundColor = "#009ACE";
-    game.physics.startSystem(Phaser.Physics.ARCADE);
 
     // Add joystick touch controls
     this.pad = this.game.plugins.add(Phaser.VirtualJoystick);
@@ -95,6 +60,13 @@ var playState = {
     this.powerUps.setAll('checkWorldBounds', true);
     this.powerUps.setAll('outOfBoundsKill', true);
 
+    // Create emitter
+    this.emitter = game.add.emitter(0, 0, 15);
+    this.emitter.makeParticles('pixel');
+    this.emitter.setYSpeed(-150, 150);
+    this.emitter.setXSpeed(-150, 150);
+    this.emitter.gravity = 0;
+
     // Add score label
     this.scoreLabel = game.add.text(20, 20, 'Score: 0', {font: "20px Arial", fill: "#FFFFFF"});
     this.goldLabel = game.add.text(170, 20, 'Gold: 0', {font: "20px Arial", fill: "#FFFFFF"});
@@ -118,8 +90,6 @@ var playState = {
     game.physics.arcade.overlap(this.player, this.powerUps, this.collectPowerUp, null, this);
     game.physics.arcade.overlap(this.player, this.enemies, this.playerHit, null, this);
 
-    this.movePlayer();
-
     if (this.game.time.now > this.nextEnemy){
       var enemyDelay = 500 + Math.round(Math.random() * 1000);
       this.nextEnemy = this.game.time.now + enemyDelay;
@@ -138,10 +108,7 @@ var playState = {
       this.newPowerUp();
     }
 
-    if (this.game.global.lives === 0){
-      game.state.start('play');
-    }
-
+    this.movePlayer();
   },
 
   easeInSpeed: function(x){
@@ -149,6 +116,9 @@ var playState = {
   },
 
   movePlayer: function(){
+    if (!this.player.alive){
+      return;
+    }
 
     var maxSpeed = 300;
     if (this.stick.isDown) {
@@ -172,6 +142,10 @@ var playState = {
   },
 
   fireFireball: function(){
+    if (!this.player.alive){
+      return;
+    }
+
     var fireball = this.fireballs.getFirstDead();
     if (!fireball){
       return;
@@ -207,8 +181,18 @@ var playState = {
 
   playerHit: function(player, enemy){
     enemy.kill();
-    this.increaseAttribute("lives", -1);
     this.resetPowerUpLevel();
+    this.increaseAttribute("lives", -1);
+    if (this.game.global.lives === 0){
+      this.playerDie();
+      this.player.kill();
+      // Set the position of the emitter on the player
+      this.emitter.x = this.player.x;
+      this.emitter.y = this.player.y;
+
+      // Start the emitter, by exploding 15 particles that will live for 600ms
+      this.emitter.start(true, 600, null, 15);
+    }
   },
 
   newEnemy: function(direction){
@@ -307,18 +291,15 @@ var playState = {
     } else {
       return multiplier;
     }
-  }
+  },
+
+  playerDie: function(){
+    this.pad.removeStick(this.stick);
+    this.pad.removeButton(this.buttonA);
+    game.time.events.add(2000, this.startMenu, this);
+  },
+
+  startMenu: function() {
+    game.state.start('menu');
+  },
 };
-
-var game = new Phaser.Game(568, 320, Phaser.AUTO, 'game-div');
-
-game.global = {
-  lives: 0,
-  score: 0,
-  gold: 0,
-  powerUpLevel: 1,
-  playerDirection: "right",
-};
-
-game.state.add('play', playState);
-game.state.start('play');
