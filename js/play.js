@@ -172,9 +172,7 @@ var playState = {
   enemyHit: function(enemy, fireball){
     fireball.kill();
     enemy.kill();
-    this.emitter.x = enemy.x;
-    this.emitter.y = enemy.y;
-    this.emitter.start(true, 600, null, 15);
+    this.bodyExplode(enemy.x, enemy.y);
     this.increaseAttribute("score", 100);
   },
 
@@ -185,13 +183,14 @@ var playState = {
     if (this.game.global.lives === 0){
       this.playerDie();
       this.player.kill();
-      // Set the position of the emitter on the player
-      this.emitter.x = this.player.x;
-      this.emitter.y = this.player.y;
-
-      // Start the emitter, by exploding 15 particles that will live for 600ms
-      this.emitter.start(true, 600, null, 15);
+      this.bodyExplode(this.player.x, this.player.y);
     }
+  },
+
+  bodyExplode: function(x, y){
+    this.emitter.x = x;
+    this.emitter.y = y;
+    this.emitter.start(true, 600, null, 15);
   },
 
   newEnemy: function(direction){
