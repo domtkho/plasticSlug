@@ -8,6 +8,10 @@ var playState = {
     game.load.spritesheet('gold', 'assets/gold.png', 32, 32);
     game.load.spritesheet('powerUp', 'assets/powerUp.png', 81, 81);
     game.load.image('road', 'assets/road.png');
+    game.load.image('compass', 'assets/compass_rose.png');
+    game.load.image('touch_segment', 'assets/touch_segment.png');
+    game.load.image('touch', 'assets/touch.png');
+
   },
 
   create: function(){
@@ -17,6 +21,10 @@ var playState = {
     // Add controls
     this.cursor = game.input.keyboard.createCursorKeys();
     this.fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+    // Add touch controls
+    this.game.touchControl = this.game.plugins.add(Phaser.Plugin.TouchControl);
+    this.game.touchControl.inputEnable();
 
     // Add road
     this.road = this.game.add.tileSprite(0, 0, this.game.width, game.cache.getImage("road").height, "road");
@@ -86,11 +94,20 @@ var playState = {
     game.physics.arcade.overlap(this.player, this.golds, this.collectGold, null, this);
     game.physics.arcade.overlap(this.player, this.powerUps, this.collectPowerUp, null, this);
     game.physics.arcade.overlap(this.player, this.enemies, this.playerHit, null, this);
+    var speed = this.game.touchControl.speed;
+    var delay=0;
 
-    if (game.global.playerDirection === "right"){
-      this.player.animations.play('runRight');
+    if (Math.abs(speed.y) < Math.abs(speed.x)){
+      delay = parseInt(1000 / Math.abs((this.easeInSpeed(speed.x)) * 10), 10);
+
+      // moving mainly right or left
+      if (this.game.touchControl.cursors.left) {
+        this.player.play('runLeft');
+      } else if (this.game.touchControl.cursors.right) {
+        this.player.play('runRight');
+      }
     } else {
-      this.player.animations.play('runLeft');
+      this.player.animations.stop(0, true);
     }
 
     this.movePlayer();
@@ -108,7 +125,7 @@ var playState = {
     }
 
     if (this.game.time.now > this.nextPowerUp){
-      var powerUpDelay = 2000 + Math.round(Math.random() * 5000);
+      var powerUpDelay = 10000 + Math.round(Math.random() * 10000);
       this.nextPowerUp = this.game.time.now + powerUpDelay;
       this.newPowerUp();
     }
@@ -118,11 +135,15 @@ var playState = {
     }
   },
 
+  easeInSpeed: function(x){
+    return x * Math.abs(x) / 2000;
+  },
+
   movePlayer: function(){
-    if(this.cursor.left.isDown){
+    if(this.game.touchControl.cursors.left){
       this.updatePlayerDirection("left");
       this.player.body.velocity.x = -200;
-    } else if (this.cursor.right.isDown){
+    } else if (this.game.touchControl.cursors.right){
       this.updatePlayerDirection("right");
       this.player.body.velocity.x = 200;
     } else {
@@ -130,10 +151,10 @@ var playState = {
       this.player.body.velocity.x = 0;
     }
 
-    if (this.cursor.up.isDown){
+    if (this.game.touchControl.cursors.up){
       this.player.body.velocity.y = -200;
       this.scaleSize(this.player);
-    } else if (this.cursor.down.isDown){
+    } else if (this.game.touchControl.cursors.down){
       this.player.body.velocity.y = 200;
       this.scaleSize(this.player);
     } else {
@@ -213,10 +234,9 @@ var playState = {
     if (!gold){
       return;
     }
-    this.scaleSize(gold);
     gold.animations.add('spin',[0,1,2,3,4,5,6,7], 10, true);
-
     gold.reset(this.game.width, this.game.height * this.randomHeightMultiplier());
+    this.scaleSize(gold);
     gold.body.velocity.x = -100;
     gold.animations.play('spin');
   },
@@ -226,10 +246,9 @@ var playState = {
     if (!powerUp){
       return;
     }
-    this.scaleSize(powerUp);
-    powerUp.animations.add('spin',[24,25,26,27,28,29,30,31], 10, true);
-
+    powerUp.animations.add('spin',[24,25,26,27,28,29,30,31], 12, true);
     powerUp.reset(this.game.width, this.game.height * this.randomHeightMultiplier());
+    this.scaleSize(powerUp);
     powerUp.body.velocity.x = -100;
     powerUp.animations.play('spin');
   },
