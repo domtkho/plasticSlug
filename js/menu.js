@@ -15,14 +15,11 @@ var menuState = {
       localStorage.setItem('bestScore', game.global.score);
     }
 
-    var text = 'score: ' + game.global.score + '\nbest score: ' +
-    localStorage.getItem('bestScore');
+    var text = 'score: ' + game.global.score + '\nbest score: ' + localStorage.getItem('bestScore');
     var scoreLabel = game.add.text(game.world.centerX, game.world.centerY, text, { font: '25px Arial', fill: '#ffffff ', align: 'center' });
     scoreLabel.anchor.setTo(0.5, 0.5);
 
-    var startLabel = game.add.text(game.world.centerX, game.world.height-80,
-      'touch the screen to start',
-      { font: '25px Arial', fill: '#ffffff ' });
+    var startLabel = game.add.text(game.world.centerX, game.world.height-80, 'touch the screen to start', { font: '25px Arial', fill: '#ffffff ' });
     startLabel.anchor.setTo(0.5, 0.5);
 
     game.add.tween(startLabel).to({angle: -2}, 500).to({angle: 2}, 500).loop().start();

@@ -111,16 +111,12 @@ var playState = {
     this.movePlayer();
   },
 
-  easeInSpeed: function(x){
-    return x * Math.abs(x) / 2000;
-  },
-
   movePlayer: function(){
     if (!this.player.alive){
       return;
     }
 
-    var maxSpeed = 300;
+    var maxSpeed = 100;
     if (this.stick.isDown) {
       this.physics.arcade.velocityFromRotation(this.stick.rotation, this.stick.force * maxSpeed, this.player.body.velocity);
       if(this.player.body.velocity.x < 0){
@@ -129,14 +125,11 @@ var playState = {
       } else if (this.player.body.velocity.x > 0){
         this.updatePlayerDirection("right");
         this.player.play('runRight');
-      } else {
-        this.updatePlayerDirection("right");
-        this.player.body.velocity.x = 0;
-        this.player.animations.stop(0, true);
       }
       this.scaleSize(this.player);
     } else {
       this.player.body.velocity.set(0);
+      this.player.animations.stop(0, true);
     }
 
   },
@@ -176,6 +169,7 @@ var playState = {
   enemyHit: function(enemy, fireball){
     fireball.kill();
     enemy.kill();
+    this.bodyExplode(enemy.x, enemy.y);
     this.increaseAttribute("score", 100);
   },
 
@@ -186,13 +180,14 @@ var playState = {
     if (this.game.global.lives === 0){
       this.playerDie();
       this.player.kill();
-      // Set the position of the emitter on the player
-      this.emitter.x = this.player.x;
-      this.emitter.y = this.player.y;
-
-      // Start the emitter, by exploding 15 particles that will live for 600ms
-      this.emitter.start(true, 600, null, 15);
+      this.bodyExplode(this.player.x, this.player.y);
     }
+  },
+
+  bodyExplode: function(x, y){
+    this.emitter.x = x;
+    this.emitter.y = y;
+    this.emitter.start(true, 600, null, 15);
   },
 
   newEnemy: function(direction){
