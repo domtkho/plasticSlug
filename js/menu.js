@@ -2,7 +2,7 @@ var menuState = {
 
   create: function() {
 
-    var nameLabel = game.add.text(game.world.centerX, -50, 'Super Coin Box', { font: '70px Geo', fill: '#ffffff ' });
+    var nameLabel = game.add.text(game.world.centerX, -50, 'PENGUIN SLAUGHTER', { font: '50px Geo', fill: '#ffffff ' });
     nameLabel.anchor.setTo(0.5, 0.5);
 
     game.add.tween(nameLabel).to({y: 80}, 1000).easing(Phaser.Easing.Bounce.Out).start();
