@@ -8,7 +8,7 @@ var loadState = {
     this.load.spritesheet('powerUp', 'assets/powerUp.png', 81, 81);
     this.load.image('road', 'assets/road.png');
     this.load.image('pixel', 'assets/pixel.png');
-    this.load.atlas('arcade', 'assets/generic-joystick.png', 'assets/generic-joystick.json');
+    this.load.atlas('arcade', 'assets/virtual-joystick/generic-joystick.png', 'assets/virtual-joystick/generic-joystick.json');
   },
 
   create: function() {
